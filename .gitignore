@@ -1,0 +1,7 @@
+.bloop/
+.idea/
+.metals/
+out/
+project/metals.sbt
+project/target/
+target/
