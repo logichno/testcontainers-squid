@@ -18,26 +18,33 @@ class Squid private (
       username: String,
       password: String
   ): Resource[F, (String, Int)] = {
-
-    def makeContainer =
-      new GenericContainer(
-        makeImage(makeSquidConf(host, port, username, password))
-      )
-
-    val acquire: F[GenericContainer[_]] = Sync[F].delay {
-      val container = makeContainer
-      container.withLogConsumer(
-        new Slf4jLogConsumer(LoggerFactory.getLogger(getClass.getName))
-      )
-      container.start()
-      container
-    }
-    val release: GenericContainer[_] => F[Unit] = c => Sync[F].delay(c.stop())
-
+    val acquire: F[GenericContainer[_]] =
+      acquireContainer[F](host, port, username, password)
     Resource
       .make[F, GenericContainer[_]](acquire)(release)
       .map(c => (c.getHost, c.getMappedPort(squidContainerPort)))
   }
+
+  def acquireContainer[F[_]: Sync](
+      host: String,
+      port: Int,
+      username: String,
+      password: String
+  ): F[GenericContainer[_]] = Sync[F].delay {
+    def makeContainer =
+      new GenericContainer(
+        makeImage(makeSquidConf(host, port, username, password))
+      )
+    val container = makeContainer
+    container.withLogConsumer(
+      new Slf4jLogConsumer(LoggerFactory.getLogger(getClass.getName))
+    )
+    container.start()
+    container
+  }
+
+  def release[F[_]: Sync]: GenericContainer[_] => F[Unit] =
+    c => Sync[F].delay(c.stop())
 
   def makeSquidConf(
       host: String,
