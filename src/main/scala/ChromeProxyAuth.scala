@@ -8,12 +8,12 @@ object ChromeProxyAuth {
       proxyPort: Int,
       proxyUser: String,
       proxyPass: String,
-      chromedriverPath: String
+      chromeDriverPath: String
   ): Resource[F, ChromeDriver] =
     for {
       anonymousProxy <- Squid()
         .anonymizeProxy[F](proxyHost, proxyPort, proxyUser, proxyPass)
       chromeDriver <- Chrome
-        .makeDriver[F](anonymousProxy._1, anonymousProxy._2, chromedriverPath)
+        .makeDriver[F](anonymousProxy._1, anonymousProxy._2, chromeDriverPath)
     } yield chromeDriver
 }

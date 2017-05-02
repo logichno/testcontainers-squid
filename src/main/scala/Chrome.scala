@@ -11,7 +11,7 @@ object Chrome {
   def makeDriver[F[_]: Sync](
       proxyHost: String,
       proxyPort: Int,
-      driverPath: String
+      chromeDriverPath: String
   ): Resource[F, ChromeDriver] = {
 
     val acquire: F[ChromeDriver] =
@@ -23,7 +23,7 @@ object Chrome {
           .addArguments(proxyArgument)
         new ChromeDriver(
           new ChromeDriverService.Builder()
-            .usingDriverExecutable(new File(driverPath))
+            .usingDriverExecutable(new File(chromeDriverPath))
             .build(),
           options
         )

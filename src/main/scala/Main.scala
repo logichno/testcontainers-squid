@@ -20,13 +20,13 @@ object Main extends IOApp {
       proxyPort = parsedArgs._2
       proxyUser = parsedArgs._3
       proxyPass = parsedArgs._4
-      chromedriverPath = parsedArgs._5
+      chromeDriverPath = parsedArgs._5
       chromeDriver <- ChromeProxyAuth.make[IO](
         proxyHost,
         proxyPort,
         proxyUser,
         proxyPass,
-        chromedriverPath
+        chromeDriverPath
       )
     } yield chromeDriver
 
