@@ -74,8 +74,8 @@ class Squid private (
 object Squid {
   def apply(
       squidContainerPort: Int = 3128,
-      baseImage: String = "sameersbn/squid:3.3.8-23",
-      squidConfPath: String = "/etc/squid3/squid.conf"
+      baseImage: String = "sameersbn/squid:3.5.27-2",
+      squidConfPath: String = "/etc/squid/squid.conf"
   ): Squid =
     new Squid(
       squidContainerPort = squidContainerPort,
