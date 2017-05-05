@@ -4,6 +4,7 @@ import cats.implicits._
 import org.slf4j.LoggerFactory
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.images.builder.ImageFromDockerfile
 
 class Squid private (
@@ -18,10 +19,10 @@ class Squid private (
       username: String,
       password: String
   ): Resource[F, (String, Int)] = {
-    val acquire: F[GenericContainer[_]] =
+    val acquire: F[SpecificContainer] =
       acquireContainer[F](host, port, username, password)
     Resource
-      .make[F, GenericContainer[_]](acquire)(release)
+      .make[F, SpecificContainer](acquire)(release)
       .map(c => (c.getHost, c.getMappedPort(squidContainerPort)))
   }
 
@@ -30,10 +31,12 @@ class Squid private (
       port: Int,
       username: String,
       password: String
-  ): F[GenericContainer[_]] = Sync[F].delay {
-    def makeContainer =
-      new GenericContainer(
+  ): F[SpecificContainer] = Sync[F].delay {
+    def makeContainer: SpecificContainer =
+      SpecificContainer(
         makeImage(makeSquidConf(host, port, username, password))
+      ).waitingFor(
+        Wait.forLogMessage(".*Accepting HTTP Socket connections.+", 1)
       )
     val container = makeContainer
     container.withLogConsumer(
